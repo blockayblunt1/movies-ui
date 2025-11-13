@@ -20,7 +20,17 @@ export default function Home() {
     setError(null);
     try {
       const data = await getAllMovies(search || undefined, sort);
-      setMovies(data);
+      // Sort movies client-side by title
+      const sortedData = [...data].sort((a, b) => {
+        const titleA = a.title.toLowerCase();
+        const titleB = b.title.toLowerCase();
+        if (sort === 'asc') {
+          return titleA.localeCompare(titleB);
+        } else {
+          return titleB.localeCompare(titleA);
+        }
+      });
+      setMovies(sortedData);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load movies';
       setError(errorMessage);
