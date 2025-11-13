@@ -10,7 +10,7 @@ interface MovieCardProps {
 
 export default function MovieCard({ movie, onEdit, onDelete }: MovieCardProps) {
   const handleDelete = async () => {
-    if (confirm(`Are you sure you want to delete "${movie.name}"?`)) {
+    if (confirm(`Are you sure you want to delete "${movie.title}"?`)) {
       onDelete(movie.id);
     }
   };
@@ -19,24 +19,49 @@ export default function MovieCard({ movie, onEdit, onDelete }: MovieCardProps) {
     onEdit(movie);
   };
 
+  // Generate star rating display
+  const renderRating = (rating: number) => {
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+    
+    return (
+      <div className="flex items-center gap-1">
+        {[...Array(fullStars)].map((_, i) => (
+          <span key={i} className="text-yellow-400">★</span>
+        ))}
+        {hasHalfStar && <span className="text-yellow-400">☆</span>}
+        {[...Array(emptyStars)].map((_, i) => (
+          <span key={i} className="text-zinc-400">☆</span>
+        ))}
+        <span className="ml-2 text-sm text-zinc-600 dark:text-zinc-400">({rating}/10)</span>
+      </div>
+    );
+  };
+
   return (
     <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden border border-zinc-200 dark:border-zinc-800">
-      {movie.imageUrl && (
+      {movie.posterImage && (
         <div className="relative w-full h-48 bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
           <img
-            src={movie.imageUrl}
-            alt={movie.name}
+            src={movie.posterImage}
+            alt={movie.title}
             className="w-full h-full object-cover"
           />
         </div>
       )}
       <div className="p-6">
         <h3 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50 mb-2 line-clamp-2">
-          {movie.name}
+          {movie.title}
         </h3>
-        <p className="text-zinc-600 dark:text-zinc-400 mb-4 line-clamp-3">
-          {movie.description}
-        </p>
+        <div className="mb-3">
+          <span className="inline-block px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded-full text-sm font-medium">
+            {movie.genre}
+          </span>
+        </div>
+        <div className="mb-4">
+          {renderRating(movie.rating)}
+        </div>
         <div className="flex items-center justify-between text-sm text-zinc-500 dark:text-zinc-500 mb-4">
           <span>
             Created: {new Date(movie.createdAt).toLocaleDateString()}
@@ -65,4 +90,3 @@ export default function MovieCard({ movie, onEdit, onDelete }: MovieCardProps) {
     </div>
   );
 }
-

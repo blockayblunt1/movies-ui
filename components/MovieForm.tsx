@@ -10,22 +10,25 @@ interface MovieFormProps {
 }
 
 export default function MovieForm({ movie, onSubmit, onCancel }: MovieFormProps) {
-  const [name, setName] = useState(movie?.name || '');
-  const [description, setDescription] = useState(movie?.description || '');
-  const [imageUrl, setImageUrl] = useState(movie?.imageUrl || '');
+  const [title, setTitle] = useState(movie?.title || '');
+  const [genre, setGenre] = useState(movie?.genre || '');
+  const [rating, setRating] = useState(movie?.rating?.toString() || '5');
+  const [posterImage, setPosterImage] = useState(movie?.posterImage || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Update form fields when movie prop changes
   useEffect(() => {
     if (movie) {
-      setName(movie.name || '');
-      setDescription(movie.description || '');
-      setImageUrl(movie.imageUrl || '');
+      setTitle(movie.title || '');
+      setGenre(movie.genre || '');
+      setRating(movie.rating?.toString() || '5');
+      setPosterImage(movie.posterImage || '');
     } else {
-      setName('');
-      setDescription('');
-      setImageUrl('');
+      setTitle('');
+      setGenre('');
+      setRating('5');
+      setPosterImage('');
     }
     setError(null);
   }, [movie]);
@@ -34,8 +37,14 @@ export default function MovieForm({ movie, onSubmit, onCancel }: MovieFormProps)
     e.preventDefault();
     setError(null);
 
-    if (!name.trim() || !description.trim()) {
-      setError('Name and description are required');
+    if (!title.trim() || !genre.trim()) {
+      setError('Title and genre are required');
+      return;
+    }
+
+    const ratingNum = parseFloat(rating);
+    if (isNaN(ratingNum) || ratingNum < 1 || ratingNum > 10) {
+      setError('Rating must be a number between 1 and 10');
       return;
     }
 
@@ -43,9 +52,10 @@ export default function MovieForm({ movie, onSubmit, onCancel }: MovieFormProps)
 
     try {
       await onSubmit({
-        name: name.trim(),
-        description: description.trim(),
-        imageUrl: imageUrl.trim() || null,
+        title: title.trim(),
+        genre: genre.trim(),
+        rating: ratingNum,
+        posterImage: posterImage.trim() || null,
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save movie');
@@ -63,57 +73,76 @@ export default function MovieForm({ movie, onSubmit, onCancel }: MovieFormProps)
       )}
 
       <div>
-        <label htmlFor="name" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-          Name *
+        <label htmlFor="title" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+          Title *
         </label>
         <input
           type="text"
-          id="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          id="title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
           maxLength={200}
           required
           className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 rounded-md bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="Enter movie name"
+          placeholder="Enter movie title"
         />
-        <p className="mt-1 text-xs text-zinc-500">{name.length}/200</p>
+        <p className="mt-1 text-xs text-zinc-500">{title.length}/200</p>
       </div>
 
       <div>
-        <label htmlFor="description" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-          Description *
+        <label htmlFor="genre" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+          Genre *
         </label>
-        <textarea
-          id="description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          maxLength={2000}
+        <input
+          type="text"
+          id="genre"
+          value={genre}
+          onChange={(e) => setGenre(e.target.value)}
+          maxLength={100}
           required
-          rows={6}
-          className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 rounded-md bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-          placeholder="Enter movie description"
+          className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 rounded-md bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="Enter movie genre (e.g., Action, Drama, Comedy)"
         />
-        <p className="mt-1 text-xs text-zinc-500">{description.length}/2000</p>
+        <p className="mt-1 text-xs text-zinc-500">{genre.length}/100</p>
       </div>
 
       <div>
-        <label htmlFor="imageUrl" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-          Image URL
+        <label htmlFor="rating" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+          Rating * (1-10)
+        </label>
+        <input
+          type="number"
+          id="rating"
+          value={rating}
+          onChange={(e) => setRating(e.target.value)}
+          min="1"
+          max="10"
+          step="0.1"
+          required
+          className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 rounded-md bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="Enter rating (1-10)"
+        />
+        <p className="mt-1 text-xs text-zinc-500">Rating: {rating}/10</p>
+      </div>
+
+      <div>
+        <label htmlFor="posterImage" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+          Poster Image URL
         </label>
         <input
           type="url"
-          id="imageUrl"
-          value={imageUrl}
-          onChange={(e) => setImageUrl(e.target.value)}
+          id="posterImage"
+          value={posterImage}
+          onChange={(e) => setPosterImage(e.target.value)}
           className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 rounded-md bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="Enter image URL"
+          placeholder="Enter poster image URL"
         />
-        {imageUrl && (
+        {posterImage && (
           <div className="mt-2">
             <p className="text-sm text-zinc-500 mb-2">Preview:</p>
             <div className="relative w-full h-48 bg-zinc-100 dark:bg-zinc-800 rounded-md overflow-hidden">
               <img
-                src={imageUrl}
+                src={posterImage}
                 alt="Preview"
                 className="w-full h-full object-cover"
                 onError={(e) => {
@@ -145,4 +174,3 @@ export default function MovieForm({ movie, onSubmit, onCancel }: MovieFormProps)
     </form>
   );
 }
-
