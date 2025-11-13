@@ -22,19 +22,17 @@ export default function MovieCard({ movie, onEdit, onDelete }: MovieCardProps) {
   // Generate star rating display
   const renderRating = (rating: number) => {
     const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 >= 0.5;
-    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+    const emptyStars = 5 - fullStars;
     
     return (
       <div className="flex items-center gap-1">
         {[...Array(fullStars)].map((_, i) => (
           <span key={i} className="text-yellow-400">★</span>
         ))}
-        {hasHalfStar && <span className="text-yellow-400">☆</span>}
         {[...Array(emptyStars)].map((_, i) => (
           <span key={i} className="text-zinc-400">☆</span>
         ))}
-        <span className="ml-2 text-sm text-zinc-600 dark:text-zinc-400">({rating}/10)</span>
+        <span className="ml-2 text-sm text-zinc-600 dark:text-zinc-400">({rating}/5)</span>
       </div>
     );
   };

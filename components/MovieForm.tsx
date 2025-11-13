@@ -12,7 +12,7 @@ interface MovieFormProps {
 export default function MovieForm({ movie, onSubmit, onCancel }: MovieFormProps) {
   const [title, setTitle] = useState(movie?.title || '');
   const [genre, setGenre] = useState(movie?.genre || '');
-  const [rating, setRating] = useState(movie?.rating?.toString() || '5');
+  const [rating, setRating] = useState(movie?.rating?.toString() || '1');
   const [posterImage, setPosterImage] = useState(movie?.posterImage || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -22,12 +22,12 @@ export default function MovieForm({ movie, onSubmit, onCancel }: MovieFormProps)
     if (movie) {
       setTitle(movie.title || '');
       setGenre(movie.genre || '');
-      setRating(movie.rating?.toString() || '5');
+      setRating(movie.rating?.toString() || '1');
       setPosterImage(movie.posterImage || '');
     } else {
       setTitle('');
       setGenre('');
-      setRating('5');
+      setRating('1');
       setPosterImage('');
     }
     setError(null);
@@ -42,9 +42,9 @@ export default function MovieForm({ movie, onSubmit, onCancel }: MovieFormProps)
       return;
     }
 
-    const ratingNum = parseFloat(rating);
-    if (isNaN(ratingNum) || ratingNum < 1 || ratingNum > 10) {
-      setError('Rating must be a number between 1 and 10');
+    const ratingNum = parseInt(rating, 10);
+    if (isNaN(ratingNum) || ratingNum < 1 || ratingNum > 5 || !Number.isInteger(parseFloat(rating))) {
+      setError('Rating must be a whole number between 1 and 5');
       return;
     }
 
@@ -108,21 +108,26 @@ export default function MovieForm({ movie, onSubmit, onCancel }: MovieFormProps)
 
       <div>
         <label htmlFor="rating" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-          Rating * (1-10)
+          Rating * (1-5)
         </label>
         <input
           type="number"
           id="rating"
           value={rating}
-          onChange={(e) => setRating(e.target.value)}
+          onChange={(e) => {
+            const value = e.target.value;
+            if (value === '' || (Number.isInteger(parseFloat(value)) && parseFloat(value) >= 1 && parseFloat(value) <= 5)) {
+              setRating(value);
+            }
+          }}
           min="1"
-          max="10"
-          step="0.1"
+          max="5"
+          step="1"
           required
           className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 rounded-md bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="Enter rating (1-10)"
+          placeholder="Enter rating (1-5)"
         />
-        <p className="mt-1 text-xs text-zinc-500">Rating: {rating}/10</p>
+        <p className="mt-1 text-xs text-zinc-500">Rating: {rating}/5</p>
       </div>
 
       <div>
